@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pokémon-Style Wild Area</title>
+  <style>
+    body {
+      background: #000;
+      color: #fff;
+      font-family: 'Courier New', monospace;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 0;
+      padding: 10px;
+    }
+    canvas {
+      image-rendering: pixelated;
+      image-rendering: -moz-crisp-edges;
+      image-rendering: crisp-edges;
+      width: 960px;
+      height: 960px;
+      border: 2px solid #fff;
+      background: #6b8e23; /* Grassy base */
+    }
+    .controls {
+      margin-top: 10px;
+      text-align: center;
+      font-size: 14px;
+      color: #0f0;
+    }
+  </style>
+</head>
+<body>
+<canvas id="gameCanvas" width="320" height="320"></canvas>
+<div class="controls">
+  <p>Move: Arrow Keys | Interact: Spacebar</p>
+  <p id="gameStats">Health: 100 | Score: 0</p>
+</div>
+<script type="module" src="main.js"></script>
+</body>
+</html>

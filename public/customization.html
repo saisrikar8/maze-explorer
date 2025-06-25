@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dungeon Crawler</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+        body, html {
+            margin: 0; padding: 0;
+            height: 100%;
+            background: linear-gradient(135deg, #0044cc, #002266);
+            font-family: 'Press Start 2P', cursive;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            user-select: none;
+        }
+
+        #customization-screen {
+            background: #222;
+            padding: 80px 100px; /* MUCH more padding */
+            border: 4px solid #553300; /* pixel style border color */
+            box-shadow:
+                    4px 4px 0 #bb7722,
+                    8px 8px 0 #ffbb33;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 80px; /* bigger gap between avatar and buttons */
+        }
+
+        #avatar-container {
+            position: relative;
+            width: 320px;  /* much bigger */
+            height: 320px; /* much bigger */
+            padding: 48px;
+            box-sizing: border-box;
+            background: #111;
+            border: 3px solid #553300;
+            box-shadow:
+                    inset 2px 2px 0 #bb7722,
+                    inset -2px -2px 0 #774400;
+
+            display: flex;           /* center avatar */
+            justify-content: center; /* horizontal */
+            align-items: center;     /* vertical */
+        }
+
+        #avatar-img {
+            width: 128px;
+            height: 160px;
+            image-rendering: pixelated;
+            display: block;
+            /* remove margin: auto; since flex centers it */
+        }
+
+        .arrow-row {
+            position: absolute;
+            display: flex;
+            width: 160px;
+            justify-content: space-between;
+            user-select: none;
+        }
+
+        /* Positions */
+        #row-prop { top: 12px; left: 50%; transform: translateX(-50%); }
+        #row-skin { top: 94px; left: 50%; transform: translateX(-50%); }
+        #row-clothes { top: 176px; left: 50%; transform: translateX(-50%); }
+
+        /* Pixel arrow buttons */
+        button.arrow-pixel {
+            width: 48px;
+            height: 48px;
+            background:
+                    repeating-conic-gradient(
+                            at center,
+                            #ffbb33 0deg 90deg,
+                            #bb7722 90deg 180deg,
+                            #ffbb33 180deg 270deg,
+                            #bb7722 270deg 360deg
+                    );
+            border: 4px solid #774400;
+            box-shadow:
+                    inset 3px 3px 0 #ffd866,
+                    inset -3px -3px 0 #a65f00;
+            cursor: pointer;
+            position: relative;
+            padding: 0;
+        }
+
+        button.arrow-pixel:active {
+            box-shadow:
+                    inset 1px 1px 0 #a65f00,
+                    inset -1px -1px 0 #ffd866;
+        }
+
+        /* Pixel arrow shapes with pixel squares */
+        .arrow-pixel svg {
+            width: 24px;
+            height: 24px;
+            image-rendering: pixelated;
+            shape-rendering: crispEdges;
+            display: block;
+            margin: auto;
+        }
+
+        /* Start Game button pixel style */
+        #start-game-btn {
+            width: 240px; /* wider button */
+            padding: 20px 0; /* more vertical padding */
+            font-family: 'Press Start 2P', monospace;
+            font-size: 20px;
+            font-weight: bold;
+            background: #ff8800;
+            border: 4px solid #bb6600;
+            color: #222;
+            cursor: pointer;
+            user-select: none;
+            box-sizing: border-box;
+            text-align: center;
+            border-radius: 0;
+            box-shadow:
+                    4px 4px 0 #bb7722,
+                    8px 8px 0 #ffbb33;
+            text-shadow:
+                    1px 0 #bb6600,
+                    -1px 0 #bb6600,
+                    0 1px #bb6600,
+                    0 -1px #bb6600,
+                    1px 1px #ffbb33,
+                    -1px -1px #ffbb33,
+                    1px -1px #ffbb33,
+                    -1px 1px #ffbb33;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        #start-game-btn:hover {
+            background: #ffaa33;
+            border-color: #996600;
+            box-shadow:
+                    4px 4px 0 #996600,
+                    8px 8px 0 #ffdd55;
+            text-shadow:
+                    1px 0 #996600,
+                    -1px 0 #996600,
+                    0 1px #996600,
+                    0 -1px #996600,
+                    1px 1px #ffdd55,
+                    -1px -1px #ffdd55,
+                    1px -1px #ffdd55,
+                    -1px 1px #ffdd55;
+        }
+
+        /* Difficulty selector row */
+        #difficulty-row {
+            display: flex;
+            gap: 40px;
+            justify-content: center;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .difficulty-btn {
+            flex: 1;
+            max-width: 120px;
+            background:
+                    repeating-conic-gradient(
+                            at center,
+                            #44cc44 0deg 90deg,
+                            #228822 90deg 180deg,
+                            #44cc44 180deg 270deg,
+                            #228822 270deg 360deg
+                    );
+            border: 4px solid #226622;
+            box-shadow:
+                    inset 3px 3px 0 #77ff77,
+                    inset -3px -3px 0 #115511;
+            color: #eee;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            text-align: center;
+            padding: 14px 0;
+            user-select: none;
+            box-sizing: border-box;
+            border-radius: 0;
+            text-transform: uppercase;
+            transition: background-color 0.2s ease, border-color 0.2s ease;
+            user-select: none;
+        }
+
+        .difficulty-btn:hover {
+            filter: brightness(1.1);
+        }
+
+        .difficulty-btn.selected {
+            background:
+                    repeating-conic-gradient(
+                            at center,
+                            #77ff77 0deg 90deg,
+                            #55cc55 90deg 180deg,
+                            #77ff77 180deg 270deg,
+                            #55cc55 270deg 360deg
+                    );
+            border-color: #55aa55;
+            box-shadow:
+                    inset 4px 4px 0 #bbffbb,
+                    inset -4px -4px 0 #449944;
+            color: #222;
+        }
+    </style>
+
+    <script type="module" src="/customization.js"></script>
+</head>
+<body>
+
+<div id="customization-screen">
+    <div id="avatar-container">
+        <img id="avatar-img" src="" alt="Avatar" />
+        <!-- Arrows for props -->
+        <div id="row-prop" class="arrow-row">
+            <button class="arrow-pixel" data-type="prop" data-dir="-1" aria-label="Previous Prop" style="margin-left: -20%;">
+                <svg viewBox="0 0 16 16" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" >
+                    <polyline points="11 3 5 8 11 13" />
+                </svg>
+            </button>
+            <button class="arrow-pixel" data-type="prop" data-dir="1" aria-label="Next Prop" style="margin-right: -20%;">
+                <svg viewBox="0 0 16 16" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" >
+                    <polyline points="5 3 11 8 5 13" />
+                </svg>
+            </button>
+        </div>
+        <!-- Arrows for skin tone -->
+        <div id="row-skin" class="arrow-row">
+            <button class="arrow-pixel" data-type="skin" data-dir="-1" aria-label="Previous Skin" style="margin-left: -20%;">
+                <svg viewBox="0 0 16 16" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" >
+                    <polyline points="11 3 5 8 11 13" />
+                </svg>
+            </button>
+            <button class="arrow-pixel" data-type="skin" data-dir="1" aria-label="Next Skin" style="margin-right: -20%;">
+                <svg viewBox="0 0 16 16" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" >
+                    <polyline points="5 3 11 8 5 13" />
+                </svg>
+            </button>
+        </div>
+        <!-- Arrows for clothes -->
+        <div id="row-clothes" class="arrow-row">
+            <button class="arrow-pixel" data-type="clothes" data-dir="-1" aria-label="Previous Clothes" style="margin-left: -20%;">
+                <svg viewBox="0 0 16 16" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" >
+                    <polyline points="11 3 5 8 11 13" />
+                </svg>
+            </button>
+            <button class="arrow-pixel" data-type="clothes" data-dir="1" aria-label="Next Clothes" style="margin-right: -20%;">
+                <svg viewBox="0 0 16 16" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" >
+                    <polyline points="5 3 11 8 5 13" />
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Difficulty Selector Row -->
+    <div id="difficulty-row" role="group" aria-label="Select Difficulty">
+        <button class="difficulty-btn" data-difficulty="easy" type="button">Easy</button>
+        <button class="difficulty-btn" data-difficulty="medium" type="button">Medium</button>
+        <button class="difficulty-btn" data-difficulty="hard" type="button">Hard</button>
+    </div>
+
+    <button id="start-game-btn">START GAME</button>
+</div>
+
+</body>
+</html>
