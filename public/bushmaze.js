@@ -1,12 +1,10 @@
-// maze.js
 export class BushMaze {
     constructor(width, height) {
         this.width = width;
         this.height = height;
         this.tileSize = 16;
         this.grid = this.generateMaze();
-        this.exit = { x: width - 2, y: height - 2 };
-
+        this.exit = this.generateFinishLineOpening();
         this.bambooData = Array(this.height).fill().map(() => Array(this.width).fill(null));
         this.precomputeBamboo();
     }
@@ -69,6 +67,24 @@ export class BushMaze {
         return grid;
     }
 
+    generateFinishLineOpening() {
+        // Make an opening in the outer wall near the bottom right corner, either at bottom row or right column edge
+
+        const margin = 2; // stay inside by this many tiles from corner
+
+        // Try bottom edge opening
+        let fx = this.width - 1 - margin;
+        let fy = this.height - 1;
+
+        // Carve opening on bottom edge
+        this.grid[fy][fx] = 4; // finish tile
+
+        // Also open the tile just inside so player can walk out (bottom row is outer wall)
+        this.grid[fy - 1][fx] = 0;
+
+        return { x: fx, y: fy };
+    }
+
     precomputeBamboo() {
         const gridSize = 4; // 4x4 bamboo grid
         const spacing = this.tileSize / gridSize;
@@ -94,8 +110,6 @@ export class BushMaze {
             }
         }
     }
-
-
 
     getUnvisitedNeighbors(cell, visited) {
         const neighbors = [];
@@ -180,6 +194,24 @@ export class BushMaze {
                     ctx.stroke();
                 }
 
+                function drawFlag(cx, cy) {
+                    // Flagpole
+                    ctx.fillStyle = '#654321';
+                    ctx.fillRect(cx - 1, cy - 14, 2, 14);
+
+                    // Flag
+                    ctx.fillStyle = '#ff0000';
+                    ctx.beginPath();
+                    ctx.moveTo(cx + 1, cy - 14);
+                    ctx.lineTo(cx + 10, cy - 10);
+                    ctx.lineTo(cx + 1, cy - 6);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.strokeStyle = 'black';
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+                }
+
                 if (tile === 1) {
                     // Wall tile (Pokémon-style brick with depth)
                     ctx.fillStyle = '#3b3b3b'; ctx.fillRect(0, 0, 16, 16);
@@ -187,86 +219,86 @@ export class BushMaze {
                     ctx.fillStyle = '#222'; ctx.fillRect(0, 14, 16, 2);
                     ctx.fillStyle = '#444'; ctx.fillRect(0, 0, 2, 16);
                 } else if (tile === 3) {
-                // Darker oak-style isometric tree with outline only on big shapes
+                    // Darker oak-style isometric tree with outline only on big shapes
 
-                // Trunk with outline
-                ctx.fillStyle = '#6e4f27';
-                ctx.beginPath();
-                ctx.moveTo(8, 10);
-                ctx.lineTo(11, 12);
-                ctx.lineTo(11, 16);
-                ctx.lineTo(8, 18);
-                ctx.lineTo(5, 16);
-                ctx.lineTo(5, 12);
-                ctx.closePath();
-                ctx.fill();
-                ctx.strokeStyle = 'black';
-                ctx.lineWidth = 0.8;
-                ctx.stroke();
+                    // Trunk with outline
+                    ctx.fillStyle = '#6e4f27';
+                    ctx.beginPath();
+                    ctx.moveTo(8, 10);
+                    ctx.lineTo(11, 12);
+                    ctx.lineTo(11, 16);
+                    ctx.lineTo(8, 18);
+                    ctx.lineTo(5, 16);
+                    ctx.lineTo(5, 12);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.strokeStyle = 'black';
+                    ctx.lineWidth = 0.8;
+                    ctx.stroke();
 
-                ctx.fillStyle = '#8b6437';
-                ctx.beginPath();
-                ctx.moveTo(5, 12);
-                ctx.lineTo(4, 13);
-                ctx.lineTo(4, 17);
-                ctx.lineTo(5, 16);
-                ctx.closePath();
-                ctx.fill();
-                ctx.stroke();
+                    ctx.fillStyle = '#8b6437';
+                    ctx.beginPath();
+                    ctx.moveTo(5, 12);
+                    ctx.lineTo(4, 13);
+                    ctx.lineTo(4, 17);
+                    ctx.lineTo(5, 16);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.stroke();
 
-                ctx.fillStyle = '#563d16';
-                ctx.beginPath();
-                ctx.moveTo(11, 12);
-                ctx.lineTo(12, 13);
-                ctx.lineTo(12, 17);
-                ctx.lineTo(11, 16);
-                ctx.closePath();
-                ctx.fill();
-                ctx.stroke();
+                    ctx.fillStyle = '#563d16';
+                    ctx.beginPath();
+                    ctx.moveTo(11, 12);
+                    ctx.lineTo(12, 13);
+                    ctx.lineTo(12, 17);
+                    ctx.lineTo(11, 16);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.stroke();
 
-                // Leaves — big ellipses with outline but NO squiggles inside
-                drawIsoEllipseWithOutline(8, 7, 10, 6, '#4c7a3e');
+                    // Leaves — big ellipses with outline but NO squiggles inside
+                    drawIsoEllipseWithOutline(8, 7, 10, 6, '#4c7a3e');
 
-                ctx.fillStyle = '#36632b';
-                ctx.beginPath();
-                ctx.ellipse(14, 7, 5, 3, 0, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.stroke();
+                    ctx.fillStyle = '#36632b';
+                    ctx.beginPath();
+                    ctx.ellipse(14, 7, 5, 3, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.stroke();
 
-                ctx.fillStyle = '#5c8a48';
-                ctx.beginPath();
-                ctx.ellipse(2, 7, 5, 3, 0, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.stroke();
+                    ctx.fillStyle = '#5c8a48';
+                    ctx.beginPath();
+                    ctx.ellipse(2, 7, 5, 3, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.stroke();
 
-                drawIsoEllipseWithOutline(8, 4, 7, 4, '#5d8e3f');
+                    drawIsoEllipseWithOutline(8, 4, 7, 4, '#5d8e3f');
 
-                ctx.fillStyle = '#466e33';
-                ctx.beginPath();
-                ctx.ellipse(13, 4, 4, 2.5, 0, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.stroke();
+                    ctx.fillStyle = '#466e33';
+                    ctx.beginPath();
+                    ctx.ellipse(13, 4, 4, 2.5, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.stroke();
 
-                ctx.fillStyle = '#7a9f5b';
-                ctx.beginPath();
-                ctx.ellipse(3, 4, 4, 2.5, 0, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.stroke();
+                    ctx.fillStyle = '#7a9f5b';
+                    ctx.beginPath();
+                    ctx.ellipse(3, 4, 4, 2.5, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.stroke();
 
-                drawIsoEllipseWithOutline(8, 1, 4, 2.5, '#6f9a45');
+                    drawIsoEllipseWithOutline(8, 1, 4, 2.5, '#6f9a45');
 
-                ctx.fillStyle = '#528040';
-                ctx.beginPath();
-                ctx.ellipse(12, 1, 2, 1.5, 0, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.stroke();
+                    ctx.fillStyle = '#528040';
+                    ctx.beginPath();
+                    ctx.ellipse(12, 1, 2, 1.5, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.stroke();
 
-                ctx.fillStyle = '#8ca95a';
-                ctx.beginPath();
-                ctx.ellipse(4, 1, 2, 1.5, 0, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.stroke();
-            } else if (tile === 2) {
+                    ctx.fillStyle = '#8ca95a';
+                    ctx.beginPath();
+                    ctx.ellipse(4, 1, 2, 1.5, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.stroke();
+                } else if (tile === 2) {
                     // Bamboo background fill
                     ctx.fillStyle = '#4f8b3b';
                     ctx.fillRect(0, 0, 16, 16);
@@ -318,6 +350,11 @@ export class BushMaze {
                             ctx.restore();
                         }
                     }
+                } else if (tile === 4) {
+                    // Finish line flag tile (opening in outer wall)
+                    ctx.fillStyle = '#8ed65e'; // grass base under opening
+                    ctx.fillRect(0, 0, 16, 16);
+                    drawFlag(4, 12);
                 } else {
                     // Grass ground
                     ctx.fillStyle = '#8ed65e';
@@ -327,12 +364,6 @@ export class BushMaze {
                 ctx.restore();
             }
         }
-
-        // Exit tile
-        ctx.fillStyle = '#00ff00';
-        ctx.fillRect(this.exit.x * this.tileSize, this.exit.y * this.tileSize, 16, 16);
-        ctx.fillStyle = '#008000';
-        ctx.fillRect(this.exit.x * this.tileSize, this.exit.y * this.tileSize + 8, 16, 8);
     }
 
     isTallGrass(x, y) {

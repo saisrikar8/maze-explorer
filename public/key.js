@@ -3,7 +3,7 @@ export class Key {
         this.x = (Math.floor(Math.random() * (maze.width - 2)) + 1) * 16 + 8;
         this.y = (Math.floor(Math.random() * (maze.height - 2)) + 1) * 16 + 8;
         this.size = 8;
-        while (maze.isTallGrass(this.x, this.y)) {
+        while (maze.isTallGrass(this.x, this.y) || maze.isWall(this.x, this.y)) {
             this.x = (Math.floor(Math.random() * (maze.width - 2)) + 1) * 16 + 8;
             this.y = (Math.floor(Math.random() * (maze.height - 2)) + 1) * 16 + 8;
         }

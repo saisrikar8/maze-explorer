@@ -10,20 +10,19 @@ export class Player {
         this.y = y;
         this.color = color;
         this.size = 8;
-        this.speed = 1;
+        this.speed = 2;
         this.lastX = x;
         this.lastY = y;
     }
 
     update(keys, maze) {
-        const speed = 2;
         let newX = this.x;
         let newY = this.y;
 
-        if (keys['ArrowUp']) newY -= speed;
-        if (keys['ArrowDown']) newY += speed;
-        if (keys['ArrowLeft']) newX -= speed;
-        if (keys['ArrowRight']) newX += speed;
+        if (keys['ArrowUp']) newY -= this.speed;
+        if (keys['ArrowDown']) newY += this.speed;
+        if (keys['ArrowLeft']) newX -= this.speed;
+        if (keys['ArrowRight']) newX += this.speed;
 
         // Only update if new position is not inside a wall
         const half = this.size / 2;
