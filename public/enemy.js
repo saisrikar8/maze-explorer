@@ -1,3 +1,4 @@
+// enemy.js
 export class Enemy {
     constructor(maze) {
         this.x = (Math.floor(Math.random() * (maze.width - 2)) + 1) * 16 + 8;
@@ -9,6 +10,7 @@ export class Enemy {
         }
         this.color = '#f00';
         this.speed = 1;
+        this.health = 1; // Add default health value
     }
 
     update(player, maze) {
@@ -29,23 +31,34 @@ export class Enemy {
     draw(ctx) {
         ctx.save();
         ctx.translate(Math.floor(this.x), Math.floor(this.y));
-        // Bold shading
-        ctx.fillStyle = '#222222'; // Darker shadow
+
+        // Draw health bar
+        const barWidth = 10;
+        const barHeight = 2;
+        const healthRatio = Math.max(0, this.health);
+        ctx.fillStyle = '#000';
+        ctx.fillRect(-barWidth / 2, -10, barWidth, barHeight);
+        ctx.fillStyle = '#f00';
+        ctx.fillRect(-barWidth / 2, -10, barWidth * healthRatio, barHeight);
+
+        // Enemy sprite
+        ctx.fillStyle = '#222222';
         ctx.fillRect(1, 1, 4, 2);
-        // Detailed Pidgey
-        ctx.fillStyle = '#f0e68c'; // Beak
+
+        ctx.fillStyle = '#f0e68c';
         ctx.fillRect(-2, -4, 1, 1);
-        ctx.fillStyle = '#ff4500'; // Head
+        ctx.fillStyle = '#ff4500';
         ctx.fillRect(-1, -4, 2, 2);
-        ctx.fillStyle = '#8b0000'; // Body
+        ctx.fillStyle = '#8b0000';
         ctx.fillRect(-2, -2, 4, 3);
-        ctx.fillStyle = '#000'; // Eye
+        ctx.fillStyle = '#000';
         ctx.fillRect(0, -3, 1, 1);
-        ctx.fillStyle = '#a52a2a'; // Wings
+        ctx.fillStyle = '#a52a2a';
         ctx.fillRect(-2, -1, 1, 1);
         ctx.fillRect(1, -1, 1, 1);
-        ctx.fillStyle = '#fff'; // Wing tips
+        ctx.fillStyle = '#fff';
         ctx.fillRect(-2, -1, 1, 1);
+
         ctx.restore();
     }
 }

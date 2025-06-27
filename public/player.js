@@ -2,7 +2,7 @@ import { PlayerSprites } from './sprites.js';
 import { getPlayerCustomization } from './utils.js';
 
 const customization = getPlayerCustomization();
-const spriteKey = `neutral-skin${customization.skin}-clothes${customization.clothes}${customization.prop !== 'none' ? '-' + customization.prop : ''}`;
+const spriteKey = `-skin${customization.skin}-clothes${customization.clothes}${customization.prop !== 'none' ? '-' + customization.prop : ''}`;
 
 export class Player {
     constructor(x, y, color) {
@@ -13,6 +13,7 @@ export class Player {
         this.speed = 2;
         this.lastX = x;
         this.lastY = y;
+        this.expression = 'neutral';
     }
 
     update(keys, maze) {
@@ -48,7 +49,7 @@ export class Player {
     draw(ctx) {
         ctx.save();
         ctx.translate(Math.floor(this.x) - 8, Math.floor(this.y) - 16); // Offset so player is centered
-        const sprite = PlayerSprites[spriteKey];
+        const sprite = PlayerSprites[this.expression + spriteKey];
         if (sprite) {
             ctx.drawImage(sprite, 0, 0, sprite.width * 0.5, sprite.height * 0.5);
         } else {

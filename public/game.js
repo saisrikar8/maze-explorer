@@ -2,7 +2,7 @@ import { Player } from './player.js';
 import { BushMaze } from './bushmaze.js';
 import { Enemy } from './enemy.js';
 import { Key } from './key.js';
-import { Potion } from './potion.js';  // if using potions
+import { Potion } from './potion.js';
 import { loadPlayerSprites } from "./sprites.js";
 
 export class Game {
@@ -22,9 +22,19 @@ export class Game {
         this.gameOver = false;
         this.frame = 0;
 
+        this.isPunching = false;
+        this.punchFrame = 0;
+        this.maxPunchFrames = 10;
+
         window.addEventListener('keydown', e => {
             this.keys[e.key] = true;
+            if (e.key === ' ' && !this.isPunching) {
+                this.isPunching = true;
+                this.punchFrame = this.maxPunchFrames;
+                this.handlePunch();
+            }
         });
+
         window.addEventListener('keyup', e => {
             this.keys[e.key] = false;
         });
@@ -49,9 +59,10 @@ export class Game {
     }
 
     update() {
-        // Handle speed boost
+        this.player.expression = 'neutral';
         if (this.speedBoostTurns > 0) {
             this.player.speed = 4;
+            this.player.expression = 'happy';
             this.speedBoostTurns--;
         } else {
             this.player.speed = 2;
@@ -60,39 +71,43 @@ export class Game {
         this.player.update(this.keys, this.maze);
         this.enemies.forEach(enemy => enemy.update(this.player, this.maze));
 
-        // Damage player on enemy contact — enemies don't lose health here
         for (const enemy of this.enemies) {
             if (this.checkCollision(this.player, enemy)) {
                 this.health -= 1;
+                this.player.expression = 'hurt';
                 if (this.health <= 0) {
                     this.gameOver = true;
                 }
             }
         }
 
-        // Key pickup adds score and respawns key somewhere else
         if (this.checkCollision(this.player, this.key)) {
             this.score += 50;
             this.key = new Key(this.maze);
         }
 
-        // Potion pickup logic
         for (let i = this.potions.length - 1; i >= 0; i--) {
             const potion = this.potions[i];
             if (this.checkCollision(this.player, potion)) {
                 this.applyPotionEffect(potion);
                 this.potions.splice(i, 1);
-                // Respawn potion at new location
                 this.potions.push(new Potion(this.maze));
             }
         }
 
-        // Exit tile triggers game over
         const exitX = this.maze.exit.x * this.maze.tileSize + this.maze.tileSize / 2;
         const exitY = this.maze.exit.y * this.maze.tileSize + this.maze.tileSize / 2;
         const exitObj = { x: exitX, y: exitY, size: this.maze.tileSize };
         if (this.checkCollision(this.player, exitObj)) {
             this.gameOver = true;
+        }
+
+        if (this.punchFrame > 0) {
+            this.punchFrame--;
+            this.player.expression = 'angry';
+            if (this.punchFrame === 0) {
+                this.isPunching = false;
+            }
         }
     }
 
@@ -107,6 +122,26 @@ export class Game {
             case 'score':
                 this.score += 100;
                 break;
+        }
+    }
+
+    handlePunch() {
+        const punchRange = 20;
+        this.player.expression = 'angry'
+        for (let i = this.enemies.length - 1; i >= 0; i--) {
+            const enemy = this.enemies[i];
+            const dx = enemy.x - this.player.x;
+            const dy = enemy.y - this.player.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+
+            if (dist < punchRange) {
+                enemy.health -= 0.5;
+                if (enemy.health <= 0) {
+                    this.enemies.splice(i, 1);
+                    this.enemies.push(new Enemy(this.maze));
+                    this.score += 25;
+                }
+            }
         }
     }
 
@@ -125,9 +160,25 @@ export class Game {
         this.player.draw(this.ctx);
         this.enemies.forEach(enemy => enemy.draw(this.ctx));
         this.key.draw(this.ctx);
+        this.potions.forEach(potion => potion.draw(this.ctx));
 
-        for (const potion of this.potions) {
-            potion.draw(this.ctx);
+        if (this.isPunching && this.punchFrame > 0) {
+            const angle = (this.maxPunchFrames - this.punchFrame) / this.maxPunchFrames * Math.PI / 2;
+            const punchX = this.player.x + Math.cos(angle) * 10;
+            const punchY = this.player.y - 6 + Math.sin(angle) * 4;
+
+            this.ctx.save();
+            this.ctx.translate(punchX, punchY);
+            this.ctx.fillStyle = '#ffcc99';
+            this.ctx.beginPath();
+            this.ctx.arc(0, 0, 4, 0, Math.PI * 2);
+            this.ctx.fill();
+
+            this.ctx.globalAlpha = 0.3;
+            this.ctx.beginPath();
+            this.ctx.arc(-3, 0, 4, 0, Math.PI * 2);
+            this.ctx.fill();
+            this.ctx.restore();
         }
 
         this.ctx.restore();
