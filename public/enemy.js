@@ -1,6 +1,9 @@
-// enemy.js
+import { getPlayerCustomization } from './utils.js';
+
+
 export class Enemy {
     constructor(maze) {
+        this.difficulty = getPlayerCustomization().difficulty;
         this.x = (Math.floor(Math.random() * (maze.width - 2)) + 1) * 16 + 8;
         this.y = (Math.floor(Math.random() * (maze.height - 2)) + 1) * 16 + 8;
         this.size = 8;
@@ -9,8 +12,8 @@ export class Enemy {
             this.y = (Math.floor(Math.random() * (maze.height - 2)) + 1) * 16 + 8;
         }
         this.color = '#f00';
-        this.speed = 1;
-        this.health = 1; // Add default health value
+        this.speed = this.difficulty === 'EASY' ? 0.4 : this.difficulty === 'MEDIUM' ? 0.8 : 1.1;
+        this.health = 1;
     }
 
     update(player, maze) {

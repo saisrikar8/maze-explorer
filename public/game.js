@@ -4,14 +4,19 @@ import { Enemy } from './enemy.js';
 import { Key } from './key.js';
 import { Potion } from './potion.js';
 import { loadPlayerSprites } from "./sprites.js";
+import {getPlayerCustomization} from "./utils.js";
+
+const TILE_SIZE = 32;
+
 
 export class Game {
     constructor(canvas, ctx) {
+        this.customization = getPlayerCustomization();
         this.canvas = canvas;
         this.ctx = ctx;
         this.maze = new BushMaze(60, 60);
         this.player = new Player(24, 24, '#ff0');
-        this.enemies = Array(10).fill().map(() => new Enemy(this.maze));
+        this.enemies = Array(this.customization.difficulty === "EASY" ? 5 : this.customization === "MEDIUM" ? 10 : 15).fill().map(() => new Enemy(this.maze));
         this.key = new Key(this.maze);
         this.potions = Array(5).fill().map(() => new Potion(this.maze));
 
@@ -161,6 +166,7 @@ export class Game {
         this.enemies.forEach(enemy => enemy.draw(this.ctx));
         this.key.draw(this.ctx);
         this.potions.forEach(potion => potion.draw(this.ctx));
+        this.drawDirectionArrow()
 
         if (this.isPunching && this.punchFrame > 0) {
             const angle = (this.maxPunchFrames - this.punchFrame) / this.maxPunchFrames * Math.PI / 2;
@@ -247,4 +253,79 @@ export class Game {
         const distance = Math.sqrt(dx * dx + dy * dy);
         return distance < (obj1.size + obj2.size) / 2;
     }
+    drawDirectionArrow(ctx = this.ctx, player = this.player) {
+        const TILE_SIZE = this.maze.tileSize;
+        const exit = this.maze.exit;
+
+        // Pixel offset away from player
+        const offsetDistance = 20;
+        const px = player.x;
+        const py = player.y;
+
+        const goalX = (exit.x + 0.5) * TILE_SIZE;
+        const goalY = (exit.y + 0.5) * TILE_SIZE;
+
+        const dx = goalX - px;
+        const dy = goalY - py;
+        const angle = Math.atan2(dy, dx);
+
+        // Bobbing motion
+        const bob = Math.sin(this.frame / 15) * 3;
+
+        // Base position offset from player, plus bobbing
+        const baseX = px + Math.cos(angle) * (offsetDistance + bob);
+        const baseY = py + Math.sin(angle) * (offsetDistance + bob);
+
+        // Arrow size
+        const shaftLength = 10;
+        const shaftWidth = 5;
+        const headLength = 8;
+        const totalLength = shaftLength + headLength;
+
+        // Compute arrow points in local space
+        const points = [
+            { x: 0, y: -shaftWidth },                      // top left of shaft
+            { x: shaftLength, y: -shaftWidth },            // shaft right top
+            { x: shaftLength, y: -headLength },            // triangle top
+            { x: totalLength, y: 0 },                      // tip
+            { x: shaftLength, y: headLength },             // triangle bottom
+            { x: shaftLength, y: shaftWidth },             // shaft right bottom
+            { x: 0, y: shaftWidth },                       // shaft bottom left
+            { x: 2, y: 0 },                                // notch
+        ];
+
+        // Rotate and translate all points
+        const rotated = points.map(p => {
+            const rx = p.x * Math.cos(angle) - p.y * Math.sin(angle);
+            const ry = p.x * Math.sin(angle) + p.y * Math.cos(angle);
+            return {
+                x: baseX + rx,
+                y: baseY + ry
+            };
+        });
+
+        // Draw
+        ctx.save();
+        ctx.imageSmoothingEnabled = false; // pixel look
+        ctx.lineJoin = 'miter';
+
+        ctx.beginPath();
+        ctx.moveTo(rotated[0].x, rotated[0].y);
+        for (let i = 1; i < rotated.length; i++) {
+            ctx.lineTo(rotated[i].x, rotated[i].y);
+        }
+        ctx.closePath();
+
+        ctx.fillStyle = '#c00';       // red fill
+        ctx.strokeStyle = '#000';     // black outline
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.fill();
+
+        ctx.restore();
+    }
+
+
+
+
 }
